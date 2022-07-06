@@ -13,6 +13,7 @@ from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.helper import Helper, HelperMode, ListItem
 from cgitb import text
 import logging, sqlite3, aiogram, datetime, asyncio, random, keyboard
+from random import randint
 
 
 db = sqlite3.connect("baza.db")
