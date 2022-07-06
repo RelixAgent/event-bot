@@ -14,10 +14,18 @@ from aiogram.utils.helper import Helper, HelperMode, ListItem
 from cgitb import text
 import logging, sqlite3, aiogram, datetime, asyncio, random, keyboard
 
-# sosi xui 1
 
 db = sqlite3.connect("baza.db")
 sql = db.cursor()
+sql.execute("""CREATE TABLE IF NOT EXISTS events (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+open INT,
+name TEXT,
+time TEXT,
+comment TEXT,
+place TEXT
+)""")
+
 sql.execute("""CREATE TABLE IF NOT EXISTS users (
 user INT,
 events TEXT
@@ -31,8 +39,13 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 cb = CallbackData("id", "text")
 
 
-class N_Start(StatesGroup):
-    nik_st = State()
+class CreateEvent(StatesGroup):
+    event = State()
+    time = State()
+    place = State()
+    comment = State()
+
+
 
 
 @dp.message_handler(Command("start"), state=None)
@@ -51,6 +64,48 @@ async def welcome(message):
         else:
             await message.answer(f"привет, {message.from_user.first_name}, я events bot",parse_mode='Markdown')
 
+
+@dp.message_handler(state=CreateEvent.event)
+async def process_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        global e_name
+        e_name = message.text
+        await state.finish()
+        await message.answer("Напиши время, когда начнётся ивент")
+        await CreateEvent.time.set()
+
+@dp.message_handler(state=CreateEvent.time)
+async def process_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        global e_time
+        e_time = message.text
+        await state.finish()
+        await message.answer("Где будет проиходить ивент?")
+        await CreateEvent.place.set()
+
+@dp.message_handler(state=CreateEvent.place)
+async def process_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        global e_place
+        e_place = message.text
+        await state.finish()
+        await message.answer("Напиши комментарий к ивенту")
+        await CreateEvent.comment.set()
+
+@dp.message_handler(state=CreateEvent.event)
+async def process_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        global e_place
+        global e_name
+        global e_time
+        e_comment = message.text
+        await state.finish()
+        message.answer("Ивент создан")
+        sql.execute(f"INSERT INTO events VALUES ({1}, ?,?,?,?)", (e_name, e_time, e_comment, e_place))
+        db.commit
+
+
+
 @dp.message_handler(content_types=['text'])
 async def main(message : types.Message):
     if message.text == 'ивенты':
@@ -64,5 +119,12 @@ async def main(message : types.Message):
         await message.answer(f"{message.from_user.first_name}, настройки", reply_markup=keyboard.settings, parse_mode='Markdown')
     if message.text == 'back to menu':
         await message.answer(f"привет, {message.from_user.first_name}, я events bot", reply_markup=keyboard.start, parse_mode='Markdown')
+
+    if message.text == "Создать ивент":
+        await message.answer("Хорошо, напиши название ивента")
+        await CreateEvent.event.set()
+
+
 if __name__ == '__main__':
     executor.start_polling(dp)
+
