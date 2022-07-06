@@ -92,18 +92,18 @@ async def process_name(message: types.Message, state: FSMContext):
         await message.answer("Напиши комментарий к ивенту")
         await CreateEvent.comment.set()
 
-@dp.message_handler(state=CreateEvent.event)
+@dp.message_handler(state=CreateEvent.comment)
 async def process_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         global e_place
         global e_name
         global e_time
+        e_id = randint(0, 9999)
         e_comment = message.text
         await state.finish()
         message.answer("Ивент создан")
-        sql.execute(f"INSERT INTO events VALUES ({1}, ?,?,?,?)", (e_name, e_time, e_comment, e_place))
-        db.commit
-
+        sql.execute(f"INSERT INTO events VALUES ({e_id}, {1}, ?,?,?,?)", (e_name, e_time, e_comment, e_place))
+        db.commit()
 
 
 @dp.message_handler(content_types=['text'])
