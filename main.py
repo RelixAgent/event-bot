@@ -14,7 +14,7 @@ from aiogram.utils.helper import Helper, HelperMode, ListItem
 from cgitb import text
 import logging, sqlite3, aiogram, datetime, asyncio, random, keyboard
 
-# sosi xui
+# sosi xui 1
 
 db = sqlite3.connect("baza.db")
 sql = db.cursor()
