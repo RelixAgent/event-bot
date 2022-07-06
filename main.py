@@ -14,6 +14,8 @@ from aiogram.utils.helper import Helper, HelperMode, ListItem
 from cgitb import text
 import logging, sqlite3, aiogram, datetime, asyncio, random, keyboard
 
+# sosi xui
+
 db = sqlite3.connect("baza.db")
 sql = db.cursor()
 sql.execute("""CREATE TABLE IF NOT EXISTS users (
